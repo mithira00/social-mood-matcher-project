@@ -1,0 +1,133 @@
+SocialMoodMatcher/
+│
+├── app.py                       # Main Streamlit application
+├── requirements.txt             # Required Python packages
+│
+├── modules/                     # Logic modules
+│   ├── mood_detector.py         # Detects mood from text
+│   ├── caption_generator.py     # Generates captions based on mood
+│   └── hashtag_generator.py     # Generates hashtags based on mood
+│
+└── data/                        # Data folder
+    └── captions.py              # Captions and hashtags with emojis
+happy_captions = [
+    "Smiles, sunshine, and good vibes!",
+    "Happiness looks good on me.",
+    "Collecting moments, not things.",
+    "Life is better when you're laughing."
+]
+
+sad_captions = [
+    "Some days are just heavier than others.",
+    "Rainy days match my mood.",
+    "Silence speaks louder than words.",
+    "Lost in thoughts."
+]
+
+motivational_captions = [
+    "Dream big, work hard, stay focused.",
+    "Your only limit is your mind.",
+    "Push yourself because no one else will.",
+    "Believe in yourself and anything is possible."
+]
+
+travel_captions = [
+    "Wander often, wonder always.",
+    "Adventure is calling.",
+    "Exploring the world one step at a time.",
+    "Travel far enough to meet yourself."
+]
+
+happy_tags = ["#happy", "#goodvibes", "#smile", "#positivity", "#joy"]
+sad_tags = ["#sad", "#emotions", "#deepthoughts", "#lonely", "#feelings"]
+motivation_tags = ["#motivation", "#success", "#dreambig", "#nevergiveup", "#inspiration"]
+travel_tags = ["#travel", "#wanderlust", "#adventure", "#explore", "#travelgram"]
+data/captions_data.py
+from textblob import TextBlob
+
+def detect_mood(text):
+
+    analysis = TextBlob(text)
+    polarity = analysis.sentiment.polarity
+
+    if "travel" in text.lower():
+        return "travel"
+
+    elif polarity > 0.3:
+        return "happy"
+
+    elif polarity < -0.3:
+        return "sad"
+
+    else:
+        return "motivational"
+modules/mood_detector.py
+import random
+from data.captions_data import *
+
+def generate_caption(mood):
+
+    if mood == "happy":
+        return random.choice(happy_captions)
+
+    elif mood == "sad":
+        return random.choice(sad_captions)
+
+    elif mood == "travel":
+        return random.choice(travel_captions)
+
+    else:
+        return random.choice(motivational_captions)
+modules/caption_generator.py
+import streamlit as st
+from modules.mood_detector import detect_mood
+from modules.caption_generator import generate_caption
+from modules.hashtag_generator import generate_hashtags
+
+st.set_page_config(page_title="Social Mood Matcher", page_icon="😊")
+
+st.title("😊 Social Mood Matcher")
+st.subheader("AI Caption & Hashtag Generator")
+
+st.write("Enter your post idea or mood to generate captions and hashtags.")
+
+user_input = st.text_area("Enter your post idea")
+
+if st.button("Generate Caption"):
+
+    if user_input == "":
+        st.warning("Please enter some text!")
+
+    else:
+        mood = detect_mood(user_input)
+
+        caption = generate_caption(mood)
+        hashtags = generate_hashtags(mood)
+
+        st.success("Caption Generated!")
+
+        st.subheader("Caption")
+        st.write(caption)
+
+        st.subheader("Hashtags")
+        st.write(hashtags)
+app.py
+import random
+from data.captions_data import *
+
+def generate_hashtags(mood):
+
+    if mood == "happy":
+        tags = random.sample(happy_tags, 3)
+
+    elif mood == "sad":
+        tags = random.sample(sad_tags, 3)
+
+    elif mood == "travel":
+        tags = random.sample(travel_tags, 3)
+
+    else:
+        tags = random.sample(motivation_tags, 3)
+
+    return " ".join(tags)
+modules/hashtag_generator.py
